@@ -8,13 +8,6 @@
 
 #include "vtable.h"
 
-typedef void *(__cdecl *luaL_checkudataFn)(lua_State *L, int narg, const char *tname);
-luaL_checkudataFn luaL_checkudata;
-
-bf_read *GetPacket(lua_State *state, int iStackPos)
-{
-	return (bf_read *)luaL_checkudata(state, 1, "PacketPeekPacket");
-}
 
 #define LUA_HOOK_NAME ("ReadPacket") // player, name, ...
 #define INVALID_PACKET_HOOK_NAME ("InvalidPacket") // player, id
