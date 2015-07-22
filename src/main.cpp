@@ -97,7 +97,7 @@ void __fastcall GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, void *, 
 			LAU->CreateTable(); // 8
 			unsigned short crc = read->ReadBitLong(16, false);
 			int i = 1;
-			while (!read->IsOverflowed())
+			while (crc != 0 && !read->IsOverflowed())
 			{
 				LAU->PushNumber(i); // 9
 				LAU->PushNumber(crc); // 10
@@ -146,7 +146,7 @@ GMOD_MODULE_OPEN() {
 }
 
 GMOD_MODULE_CLOSE() {
-	clients_vt->~VTable();
+	delete clients_vt;
 	clients_vt = 0;
 	return 0;
 }
