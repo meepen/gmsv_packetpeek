@@ -3,7 +3,7 @@
 
 #define ushort_max (unsigned short(-1))
 
-typedef char *vtindex; // sizeof(pointer) with ability to add numbers and shit 
+typedef char *vtindex; // sizeof(pointer) with ability to add numbers and shit
 #ifndef offset
 #define offset(x,y) ((char *)(x) - (char *)(y))
 #endif

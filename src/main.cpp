@@ -1,12 +1,13 @@
-#include <Windows.h>
 #include <eiface.h>
 #include <tier1/bitbuf.h>
 #include <inetchannelinfo.h>
 #include <edict.h>
+
 #include "GarrysMod/Lua/Interface.h"
 #include "interface.h"
 
 #include "vtable.h"
+#include "conv.h"
 
 
 #define LUA_HOOK_NAME ("ReadPacket") // player, name, ...
@@ -17,7 +18,13 @@ class CServerGameClients;
 CServerGameClients *clients;
 IVEngineServer *server;
 
-const unsigned long vtindex_receivepacket = 72 / 4;
+#define vtindex_receivepacket_intrnl (72 / 4)
+
+#ifdef _WIN32
+#define vtindex_receivepacket vtindex_receivepacket_intrnl
+#else
+#define vtindex_receivepacket vtindex_receivepacket_intrnl
+#endif
 
 VTable *clients_vt = 0;
 
@@ -34,11 +41,11 @@ lua_State *st = 0;
 
 using namespace GarrysMod;
 
-void __fastcall GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, void *, int unk1, edict_t *ent, bf_read *read, int unk2)
+void __hook GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, HOOK_EDX(void *) int unk1, edict_t *ent, bf_read *read, int unk2)
 {
 	typedef void(__thiscall *OriginalFn)(CServerGameClients *, int, edict_t *, bf_read *, int);
 
-	auto current = read->m_iCurBit;
+	unsigned int current = read->m_iCurBit;
 
 
 	int byte = read->ReadByte();
@@ -55,7 +62,7 @@ void __fastcall GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, void *, 
 	}
 	LAU->GetField(-2, "hook"); // 2
 	LAU->GetField(-1, "Run"); // 3
-	
+
 	if (byte >= sizeof(types) / sizeof(*types) || byte < 0 || types[byte] == 0)
 	{
 
@@ -126,12 +133,12 @@ void __fastcall GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, void *, 
 GMOD_MODULE_OPEN() {
 
 	st = state;
-	clients = GetInterface<CServerGameClients *>("server.dll", "ServerGameClients003");
-	
+	clients = GetInterface<CServerGameClients *>("server", "ServerGameClients003");
+
 	if (!clients)
 		LUA->ThrowError("Unable to fetch CServerGameClients class!");
 
-	server = GetInterface<IVEngineServer *>("engine.dll", "VEngineServer021");
+	server = GetInterface<IVEngineServer *>("engine", "VEngineServer021");
 
 	if (!server)
 		LUA->ThrowError("Unable to fetch IVEngineServer class!");
@@ -139,7 +146,7 @@ GMOD_MODULE_OPEN() {
 	clients_vt = new VTable(clients);
 
 
-	clients_vt->hook(vtindex_receivepacket, &GMOD_ReceiveClientMessage_Hook);
+	clients_vt->hook(vtindex_receivepacket, (void *)&GMOD_ReceiveClientMessage_Hook);
 
 
 	return 0;
