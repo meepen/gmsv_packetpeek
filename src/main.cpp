@@ -134,11 +134,23 @@ GMOD_MODULE_OPEN() {
 
 	st = state;
 	clients = GetInterface<CServerGameClients *>("server", "ServerGameClients003");
+	
+	if(!clients)
+		clients = GetInterface<CServerGameClients *>("server_srv", "ServerGameClients003");
+		
+	if(!clients)
+		clients = GetInterface<CServerGameClients *>("dedicated_srv", "ServerGameClients003");
+		
+	if(!clients)
+		clients = GetInterface<CServerGameClients *>("dedicated", "ServerGameClients003");
 
 	if (!clients)
 		LUA->ThrowError("Unable to fetch CServerGameClients class!");
 
 	server = GetInterface<IVEngineServer *>("engine", "VEngineServer021");
+	
+	if(!server)
+		server = GetInterface<IVEngineServer *>("engine_srv", "VEngineServer021");
 
 	if (!server)
 		LUA->ThrowError("Unable to fetch IVEngineServer class!");
