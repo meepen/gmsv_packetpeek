@@ -1,17 +1,27 @@
-dofile("../../common.lua")
+solution "gmsv_packetpeek"
+	language "C++"
+	location "project"
+	targetdir "bin"
 
-RequireDefaultlibs()
+	flags "StaticRuntime"
 
-SOLUTION 	"gmsv_packetpeek"
+	architecture "x86"
 
-targetdir	"bins"
-INCLUDES	"source_sdk"
-INCLUDES 	"gmod_sdk"
-defines		{"NDEBUG"}
+	configurations {
+		"Release"
+	}
 
-WINDOWS()
-LINUX()
-PROJECT()
-SOURCE_SDK_LINKS()
-configuration 		"windows"
-configuration 		"linux"
+	configuration "Release"
+		optimize "On"
+
+	project "gmsv_packetpeek"
+		kind "SharedLib"
+
+		files {
+			"src/**.cpp",
+			"src/**.h"
+		}
+
+		include "SourceSDK/Tier0"
+		include "SourceSDK/Tier1"
+        include "LuaInterface"

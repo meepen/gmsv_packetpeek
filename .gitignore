@@ -1,4 +1,2 @@
-bins/
-windows/
-linux/
-premake5.exe
+bin
+project
