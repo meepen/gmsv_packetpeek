@@ -41,7 +41,7 @@ lua_State *st = 0;
 
 using namespace GarrysMod;
 
-void __hook GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, HOOK_EDX(void *) int unk1, edict_t *ent, bf_read *read, int unk2)
+void __hook GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, HOOK_EDX(void *) int unk1, edict_t *ent, bf_read *read, int length)
 {
 	typedef void(__thiscall *OriginalFn)(CServerGameClients *, int, edict_t *, bf_read *, int);
 
@@ -63,9 +63,18 @@ void __hook GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, HOOK_EDX(voi
 	LAU->GetField(-2, "hook"); // 2
 	LAU->GetField(-1, "Run"); // 3
 
-	if (byte >= sizeof(types) / sizeof(*types) || byte < 0 || types[byte] == 0)
+	
+
+	if (length < 0 || byte >= sizeof(types) / sizeof(*types) || byte < 0 || types[byte] == 0)
 	{
 
+		if (length < 0)
+		{
+			length = -length;
+
+			*(int *)read->m_pData = length;
+
+		}
 
 		LAU->PushString(INVALID_PACKET_HOOK_NAME); // 4
 		LAU->Push(-4); // 5
@@ -126,7 +135,7 @@ void __hook GMOD_ReceiveClientMessage_Hook(CServerGameClients *ths, HOOK_EDX(voi
 
 	read->m_iCurBit = current;
 
-	OriginalFn(clients_vt->getold(vtindex_receivepacket))(ths, unk1, ent, read, unk2);
+	OriginalFn(clients_vt->getold(vtindex_receivepacket))(ths, unk1, ent, read, length);
 
 }
 
